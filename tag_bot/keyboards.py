@@ -1,7 +1,13 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, LoginUrl
 from asgiref.sync import sync_to_async
 from collections import namedtuple
 from tag_bot.callback_datas import main_callback, tag_callback
+import django
+
+django.setup()
+from tag_web.models import DEFAULT_TAG_NAME
+
+SITE_URL = 'http://127.0.0.1:8000/admin/'
 
 Context = namedtuple('Context', ['main', 'post'])
 context = Context('main', 'post')
@@ -13,11 +19,11 @@ action = Action('choose', 'delete')
 @sync_to_async
 def create_choose_tag_keyboard(tags, context, action):
     keyboard = InlineKeyboardMarkup(row_width=2)
-    back_to_main = InlineKeyboardButton(text="Back",
+    back_to_main = InlineKeyboardButton(text="Назад",
                                         callback_data=main_callback.new(type="main", context=context))
     if tags:
         for tag in tags:
-            if (action == 'delete' or context == 'post') and tag.name == 'No tag':
+            if (action == 'delete' or context == 'post') and tag.name == DEFAULT_TAG_NAME:
                 continue
             callback_data = tag_callback.new(name=f"{tag.name}", context=context, action=action)
             keyboard.insert(
@@ -28,22 +34,27 @@ def create_choose_tag_keyboard(tags, context, action):
     return keyboard
 
 
+login_url = LoginUrl(url='https://8267-46-175-33-19.ngrok-free.app/auth', request_write_access=True, bot_username='taginator_help_bot')
 main_keyboard_buttons = [
-    [InlineKeyboardButton(text="📚 Choose tag", callback_data=main_callback.new(type="choose", context=context.main)),
-     InlineKeyboardButton(text="➕ Create tag", callback_data=main_callback.new(type="create", context=context.main)),
-     InlineKeyboardButton(text="🗑 Delete tag", callback_data=main_callback.new(type="delete", context=context.main))],
-    [InlineKeyboardButton(text="🌐 Open website", callback_data=main_callback.new(type="website", context=context.main),
-                          url='http://127.0.0.1:8000/admin/')]
+    [InlineKeyboardButton(text="📚 Выбрать", callback_data=main_callback.new(type="choose", context=context.main)),
+     InlineKeyboardButton(text="➕ Создать", callback_data=main_callback.new(type="create", context=context.main)),
+     InlineKeyboardButton(text="🗑 Удалить", callback_data=main_callback.new(type="delete", context=context.main))],
+    [InlineKeyboardButton(text="🌐 Открыть на сайте", login_url=login_url)]
 ]
+cancel_button = InlineKeyboardButton(text="Отмена", callback_data=main_callback.new(type="main", context=context.main))
 
 main_keyboard = InlineKeyboardMarkup(inline_keyboard=main_keyboard_buttons)
 
 post_keyboard_buttons = [
-    [InlineKeyboardButton(text="📚 Choose tag", callback_data=main_callback.new(type="choose", context=context.post)),
-     InlineKeyboardButton(text="🤷‍♂️ No tag", callback_data=tag_callback.new(name="No tag", context=context.post,
-                                                                        action=action.choose)),
-    InlineKeyboardButton(text="Cancel", callback_data=main_callback.new(type="main", context=context.main))
+    [InlineKeyboardButton(text="📚 Выбрать тег", callback_data=main_callback.new(type="choose", context=context.post)),
+     InlineKeyboardButton(text=f"🤷‍♂️ {DEFAULT_TAG_NAME}",
+                          callback_data=tag_callback.new(name=DEFAULT_TAG_NAME, context=context.post,
+                                                         action=action.choose)),
+     cancel_button
      ]
 ]
 
 post_keyboard = InlineKeyboardMarkup(inline_keyboard=post_keyboard_buttons)
+
+create_keyboard = InlineKeyboardMarkup()
+create_keyboard.insert(cancel_button)

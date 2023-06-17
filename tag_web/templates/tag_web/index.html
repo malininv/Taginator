@@ -1,0 +1,34 @@
+{% extends 'tag_web/base.html' %}
+
+{% block content %}
+<div class="input-form pt-2 px-5">
+    <form id="input-main" class="">
+        <label for="search-main" class="form-label"></label>
+        <input id="search-main" class="form-control" type="text" placeholder="Поиск по постам"
+               name="search">
+        <div class="form-check px-0 pt-3">
+            {% for tag in tags %}
+                <button type="button" class="btn btn-light me-2 mb-2" value="{{ tag.name }}">{{ tag.name }} <span
+                        class="badge text-bg-secondary">{{ tag.count }}</span></button>
+            {% endfor %}
+            {% for post in posts %}
+                <div class="card text-start">
+                    <div class="card-header">
+                            <strong>#{{ post.tag.name }}</strong>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ post.text }}</p>
+                    </div>
+                    <div class="card-footer">
+                        {{ post.date_pub }}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="alert alert-warning" role="alert">
+                    There is no posts...
+                </div>
+            {% endfor %}
+        </div>
+    </form>
+</div>
+{% endblock %}

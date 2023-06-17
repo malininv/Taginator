@@ -9,8 +9,10 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import pprint
 from pathlib import Path
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0k1@n%j$d3^crw+m)ldvtorc99-5rx)068ue%!7j%s!*p3nk+='
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['8267-46-175-33-19.ngrok-free.app']
 
 
 # Application definition
@@ -38,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tag_web',
+
 ]
 
 MIDDLEWARE = [
@@ -123,3 +126,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "tag_web" / "static" / "tag_web"
+
+]
+
+STATIC_ROOT = BASE_DIR / "static"
+
+TELEGRAM_BOT_NAME = 'taginator_help_bot'
+CSRF_TRUSTED_ORIGINS = ['https://8267-46-175-33-19.ngrok-free.app', 'http://localhost:80']
+
+from .local_settings import *

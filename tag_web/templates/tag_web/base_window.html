@@ -1,0 +1,12 @@
+{% extends 'tag_web/base.html' %}
+
+{% block content %}
+    <div class="container text-center">
+        <div class="card position-absolute top-50 start-50 translate-middle border-5">
+            <div class="card-body">
+                {% block content_window %}
+                    {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
