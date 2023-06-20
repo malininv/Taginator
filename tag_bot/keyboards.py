@@ -23,7 +23,7 @@ def create_choose_tag_keyboard(tags, context, action):
                                         callback_data=main_callback.new(type="main", context=context))
     if tags:
         for tag in tags:
-            if (action == 'delete' or context == 'post') and tag.name == DEFAULT_TAG_NAME:
+            if action == 'delete' and tag.name == DEFAULT_TAG_NAME:
                 continue
             callback_data = tag_callback.new(name=f"{tag.name}", context=context, action=action)
             keyboard.insert(
@@ -39,7 +39,8 @@ main_keyboard_buttons = [
     [InlineKeyboardButton(text="📚 Выбрать", callback_data=main_callback.new(type="choose", context=context.main)),
      InlineKeyboardButton(text="➕ Создать", callback_data=main_callback.new(type="create", context=context.main)),
      InlineKeyboardButton(text="🗑 Удалить", callback_data=main_callback.new(type="delete", context=context.main))],
-    [InlineKeyboardButton(text="🌐 Открыть на сайте", login_url=login_url)]
+    [InlineKeyboardButton(text="🌐 Открыть сайт", login_url=login_url)],
+    [InlineKeyboardButton(text="😄 Создать тестовые данные", callback_data=main_callback.new(type="create_test", context=context.main))],
 ]
 cancel_button = InlineKeyboardButton(text="Отмена", callback_data=main_callback.new(type="main", context=context.main))
 
@@ -47,9 +48,6 @@ main_keyboard = InlineKeyboardMarkup(inline_keyboard=main_keyboard_buttons)
 
 post_keyboard_buttons = [
     [InlineKeyboardButton(text="📚 Выбрать тег", callback_data=main_callback.new(type="choose", context=context.post)),
-     InlineKeyboardButton(text=f"🤷‍♂️ {DEFAULT_TAG_NAME}",
-                          callback_data=tag_callback.new(name=DEFAULT_TAG_NAME, context=context.post,
-                                                         action=action.choose)),
      cancel_button
      ]
 ]

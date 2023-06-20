@@ -17,7 +17,7 @@ class Post(models.Model):
 
     @property
     def date_pub_formatted(self):
-        return self.date_pub.strftime('%d.%m.%Y %H:%M')
+        return self.date_pub.strftime('%d.%m.%y %H:%M')
 
 
 class Tag(models.Model):
@@ -50,5 +50,6 @@ class TelegramUser(models.Model):
         user.tg_username = data.get('username', '')
         user.tg_photo_url = data.get('photo_url', '')
         user.tg_auth_date = data.get('auth_date', '')
+        user.save()
         return user
 

@@ -11,12 +11,16 @@ from tag_bot.keyboards import main_keyboard, create_choose_tag_keyboard, post_ke
 from django.db.models import Count
 django.setup()
 from tag_web.models import Tag, TelegramUser, Post, DEFAULT_TAG_NAME
+from tag_web.utils import TestData
 from Taginator.local_settings import TELEGRAM_BOT_TOKEN
 
 
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
+
+MAX_TAG_LENGH = 64
+MAIN_KEYBOARD_MSG = 'Отправьте сообщение чтобы сохранить.\n\nДля просмотра существующих сообщение выберите тег.'
 
 
 class CreateTagState(StatesGroup):
@@ -25,7 +29,7 @@ class CreateTagState(StatesGroup):
 
 @dp.message_handler(commands=['start'])
 async def send_main_keyboard(message: types.Message):
-    await message.answer('Выберите тег или создайте новый.', reply_markup=main_keyboard)
+    await message.answer(MAIN_KEYBOARD_MSG, reply_markup=main_keyboard)
     telegram_user, created = await TelegramUser.objects.aget_or_create(tg_id=message.from_user.id)
     default_tag, created = await Tag.objects.aget_or_create(name=DEFAULT_TAG_NAME, telegram_user=telegram_user)
 
@@ -34,6 +38,14 @@ async def send_main_keyboard(message: types.Message):
 async def create_tag(call: CallbackQuery, callback_data: dict):
     await call.message.edit_text("<b>Отправьте мне новый тег </b>", parse_mode='HTML', reply_markup=create_keyboard)
     await CreateTagState.waiting_for_tag_name.set()
+
+
+@dp.callback_query_handler(main_callback.filter(type="create_test", context=context.main))
+async def create_test_data(call: CallbackQuery, callback_data: dict):
+    await call.message.answer('Идет сбор данных, пожалуйста, подождите.')
+    test_data = TestData(call.from_user.id)
+    await test_data.create_random_data()
+    await call.message.answer('Данные готовы. Нажмите "Выбрать" для просмотра доступных категорий.')
 
 
 @dp.callback_query_handler(main_callback.filter(type="delete", context=context.main))
@@ -60,14 +72,14 @@ async def choose_tag_from_post(call: CallbackQuery, callback_data: dict):
 
 @dp.callback_query_handler(main_callback.filter(type="main", context=context.main))
 async def back_to_main_from_main(call: CallbackQuery, callback_data: dict):
-    await call.message.edit_text('Выберите тег или создайте новый.', reply_markup=main_keyboard)
+    await call.message.edit_text(MAIN_KEYBOARD_MSG, reply_markup=main_keyboard)
 
 
 @dp.callback_query_handler(main_callback.filter(type="main", context=context.main),
                            state=CreateTagState.waiting_for_tag_name)
 async def back_to_main_from_main(call: CallbackQuery, callback_data: dict, state: FSMContext):
     await state.finish()
-    await call.message.edit_text('Выберите тег или создайте новый.', reply_markup=main_keyboard)
+    await call.message.edit_text(MAIN_KEYBOARD_MSG, reply_markup=main_keyboard)
 
 
 @dp.callback_query_handler(main_callback.filter(type="main", context=context.post))
@@ -77,7 +89,7 @@ async def back_to_main_from_post(call: CallbackQuery, callback_data: dict):
 
 @sync_to_async
 def get_all_tags(user):
-    tags = Tag.objects.filter(telegram_user__tg_id=user).annotate(count=Count('posts'))
+    tags = Tag.objects.filter(telegram_user__tg_id=user).annotate(count=Count('posts')).order_by('-count')
     return tags
 
 
@@ -90,6 +102,11 @@ def get_or_create_tag(name, user_id):
 
 @dp.message_handler(state=CreateTagState.waiting_for_tag_name)
 async def create_tag(message: types.Message, state: FSMContext):
+    if len(message.text) > MAX_TAG_LENGH:
+        await message.answer(f"Тег слишком длинный. Максимальная длинна {MAX_TAG_LENGH} символа.",
+                             reply_markup=main_keyboard)
+        await state.finish()
+        return
     tag, created = await get_or_create_tag(message.text, message.from_user.id)
     if created:
         await message.answer(f"'{tag.name}' тег успешно создан.", reply_markup=main_keyboard)
@@ -112,7 +129,7 @@ async def choose_tag_for_main(call: CallbackQuery, callback_data: dict):
     tag = await Tag.objects.aget(name=tag_name, telegram_user__tg_id=call.from_user.id)
     posts = Post.objects.filter(tag=tag)
     feed = await create_post_feed(posts, tag)
-    await call.message.edit_text(feed, parse_mode='HTML', reply_markup=main_keyboard)
+    await call.message.edit_text(feed, parse_mode='HTML', reply_markup=main_keyboard, disable_web_page_preview=True)
 
 
 @sync_to_async()
@@ -120,9 +137,12 @@ def create_post_feed(posts, tag):
     if not posts:
         return 'Упс.. С таким тегом постов не существует...'
     feed = f'🗂 <b>{tag.name}</b>\n\n'
-    sep = '_' * 12
-    for post in posts:
-        feed += f'<b>{post.date_pub_formatted}</b>\n\n{post.text}\n{sep}\n\n'
+    sep = '_' * 12 + '\n\n'
+    post_count = posts.count()
+    for index, post in enumerate(posts, start=1):
+        if index == post_count:
+            sep = ''
+        feed += f'<b>{post.date_pub_formatted}</b>\n\n{post.text}\n{sep}'
     return feed
 
 
@@ -144,7 +164,7 @@ def make_default_tags(tag, user_id):
     Post.objects.bulk_update(posts, ['tag'])
 @dp.message_handler()
 async def tag_choose(message: types.Message):
-    await message.answer(f'{message.text}', reply_markup=post_keyboard)
+    await message.answer(f'{message.text}', reply_markup=post_keyboard, disable_web_page_preview=True)
 
 
 if __name__ == '__main__':
