@@ -24,13 +24,14 @@ def index(request):
         posts = posts.filter(tag__name__in=tag_param.split(','))
 
     theme = request.session.get('theme') or DEFAULT_THEME
+
     context = {
         'tags': tags,
         'posts': posts,
         'host': request.get_host(),
-        'theme': theme
+        'theme': theme,
+        'is_checked': theme == 'dark'
     }
-
     return render(request, 'tag_web/index.html', context=context)
 
 
@@ -48,7 +49,6 @@ def auth(request):
 def update_session(request):
     if not request.headers.get('x-requested-with') == 'XMLHttpRequest' or not request.method == 'POST':
         return HttpResponseNotAllowed(['POST'])
-
     data = json.load(request)
     request.session['theme'] = data.get('theme')
     return HttpResponse()

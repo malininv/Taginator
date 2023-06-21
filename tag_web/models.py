@@ -8,6 +8,7 @@ class Post(models.Model):
     text = models.TextField(db_index=True)
     tag = models.ForeignKey('Tag', on_delete=models.CASCADE, blank=True, related_name='posts')
     date_pub = models.DateTimeField(auto_now_add=True)
+    is_test = models.BooleanField(blank=True, null=True, default=False)
 
     def __str__(self):
         return self.text[:20]
@@ -23,6 +24,7 @@ class Post(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=50, default=DEFAULT_TAG_NAME)
     telegram_user = models.ForeignKey('TelegramUser', blank=True, on_delete=models.CASCADE, related_name='tags')
+    is_test = models.BooleanField(blank=True, null=True)
 
     class Meta:
         ordering = ['name']

@@ -9,8 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
                 'x-requested-with': 'XMLHttpRequest',
-                'Content-Type': 'application/json;charset=utf-8'
+                'Content-Type': 'application/json;charset=utf-8',
             },
+            credentials: 'include',
             body: JSON.stringify({theme: htmlThemeElement.dataset.bsTheme})
         })
     });
@@ -59,14 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
     searchForm.addEventListener('submit', (e) => {
         e.preventDefault()
     })
-
-    function collectTags(elements) {
-        let queryString = []
-        elements.forEach((el) => {
-            queryString.push(el.value)
-        })
-        return queryString.join(',')
-    }
 
     function activateTags(tags) {
         tags.forEach((tag) => {

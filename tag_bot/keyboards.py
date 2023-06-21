@@ -41,6 +41,8 @@ main_keyboard_buttons = [
      InlineKeyboardButton(text="🗑 Удалить", callback_data=main_callback.new(type="delete", context=context.main))],
     [InlineKeyboardButton(text="🌐 Открыть сайт", login_url=login_url)],
     [InlineKeyboardButton(text="😄 Создать тестовые данные", callback_data=main_callback.new(type="create_test", context=context.main))],
+    [InlineKeyboardButton(text="🧹 Очистить тестовые данные",
+                          callback_data=main_callback.new(type="delete_test", context=context.main))],
 ]
 cancel_button = InlineKeyboardButton(text="Отмена", callback_data=main_callback.new(type="main", context=context.main))
 

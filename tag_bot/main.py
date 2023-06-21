@@ -9,11 +9,11 @@ import django
 from tag_bot.callback_datas import main_callback, tag_callback
 from tag_bot.keyboards import main_keyboard, create_choose_tag_keyboard, post_keyboard, context, action, create_keyboard
 from django.db.models import Count
+
 django.setup()
 from tag_web.models import Tag, TelegramUser, Post, DEFAULT_TAG_NAME
-from tag_web.utils import TestData
+from tag_web.utils import TestData, delete_test_data
 from Taginator.local_settings import TELEGRAM_BOT_TOKEN
-
 
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 storage = MemoryStorage()
@@ -41,19 +41,26 @@ async def create_tag(call: CallbackQuery, callback_data: dict):
 
 
 @dp.callback_query_handler(main_callback.filter(type="create_test", context=context.main))
-async def create_test_data(call: CallbackQuery, callback_data: dict):
-    await call.message.answer('Идет сбор данных, пожалуйста, подождите.')
+async def delete_test_data_main(call: CallbackQuery, callback_data: dict):
+    await call.message.edit_text('Идет сбор данных, пожалуйста, подождите.')
     test_data = TestData(call.from_user.id)
     await test_data.create_random_data()
-    await call.message.answer('Данные готовы. Нажмите "Выбрать" для просмотра доступных категорий.')
+    await call.message.edit_text('Данные готовы. Нажмите "Выбрать" для просмотра доступных категорий.',
+                                 reply_markup=main_keyboard)
+
+
+@dp.callback_query_handler(main_callback.filter(type="delete_test", context=context.main))
+async def delete_test_data_main(call: CallbackQuery, callback_data: dict):
+    await delete_test_data(call.from_user.id)
+    await call.message.edit_text('Тестовые данные успешно удалены.', reply_markup=main_keyboard)
 
 
 @dp.callback_query_handler(main_callback.filter(type="delete", context=context.main))
 async def delete_tag(call: CallbackQuery, callback_data: dict):
     tags = await get_all_tags(call.from_user.id)
     keyboard = await create_choose_tag_keyboard(tags, callback_data['context'], action.delete)
-    await call.message.edit_text('Выберите тег для удаления.\n\nСвязанным с тегом постам назначится категория "Без тега"',
-        reply_markup=keyboard)
+    await call.message.edit_text('Выберите тег для удаления.\n\n<b>Связанным с тегом посты будет удалены.</b>',
+                                 reply_markup=keyboard, parse_mode='HTML')
 
 
 @dp.callback_query_handler(main_callback.filter(type="choose", context=context.main))
@@ -95,8 +102,8 @@ def get_all_tags(user):
 
 @sync_to_async
 def get_or_create_tag(name, user_id):
-    telegram_user = TelegramUser.objects.get(tg_id=user_id)
-    tag, created = Tag.objects.get_or_create(name=name, telegram_user=telegram_user)
+    user = TelegramUser.objects.get(tg_id=user_id)
+    tag, created = Tag.objects.get_or_create(name=name, telegram_user=user)
     return tag, created
 
 
@@ -129,20 +136,20 @@ async def choose_tag_for_main(call: CallbackQuery, callback_data: dict):
     tag = await Tag.objects.aget(name=tag_name, telegram_user__tg_id=call.from_user.id)
     posts = Post.objects.filter(tag=tag)
     feed = await create_post_feed(posts, tag)
-    await call.message.edit_text(feed, parse_mode='HTML', reply_markup=main_keyboard, disable_web_page_preview=True)
+    await call.message.edit_text(feed, reply_markup=main_keyboard, disable_web_page_preview=True)
 
 
 @sync_to_async()
 def create_post_feed(posts, tag):
     if not posts:
         return 'Упс.. С таким тегом постов не существует...'
-    feed = f'🗂 <b>{tag.name}</b>\n\n'
+    feed = f'🗂 {tag.name}\n\n'
     sep = '_' * 12 + '\n\n'
     post_count = posts.count()
     for index, post in enumerate(posts, start=1):
         if index == post_count:
             sep = ''
-        feed += f'<b>{post.date_pub_formatted}</b>\n\n{post.text}\n{sep}'
+        feed += f'{post.date_pub_formatted}\n\n{post.text}\n{sep}'
     return feed
 
 
@@ -150,18 +157,10 @@ def create_post_feed(posts, tag):
 async def delete_tag_for_main(call: CallbackQuery, callback_data: dict):
     tag_name = callback_data.get('name')
     tag = await Tag.objects.aget(name=tag_name, telegram_user__tg_id=call.from_user.id)
-    await make_default_tags(tag, call.from_user.id)
     await tag.adelete()
-    await call.message.edit_text(f'"{tag_name}" тег успешно удален.', parse_mode='HTML', reply_markup=main_keyboard)
+    await call.message.edit_text(f'Тег "{tag_name}" успешно удален.', parse_mode='HTML', reply_markup=main_keyboard)
 
 
-@sync_to_async()
-def make_default_tags(tag, user_id):
-    posts = Post.objects.filter(tag=tag)
-    default_tag = Tag.objects.get(name=DEFAULT_TAG_NAME, telegram_user__tg_id=user_id)
-    for post in posts:
-        post.tag = default_tag
-    Post.objects.bulk_update(posts, ['tag'])
 @dp.message_handler()
 async def tag_choose(message: types.Message):
     await message.answer(f'{message.text}', reply_markup=post_keyboard, disable_web_page_preview=True)

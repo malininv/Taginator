@@ -3,8 +3,8 @@ import hmac
 import random
 import django
 import requests
-import json
 
+from asgiref.sync import sync_to_async
 django.setup()
 from tag_web.models import Tag, Post, TelegramUser
 
@@ -35,42 +35,53 @@ class HashCheck:
 
 
 class TestData:
+    genres = [(1, 'Анекдот'),
+              (2, 'Рассказы'),
+              (3, 'Стишки'),
+              (4, 'Афоризмы'),
+              (5, 'Цитаты'),
+              (6, 'Тосты'),
+              (8, 'Статусы')]
+
     def __init__(self, user_id):
         self.user_id = user_id
-        self.genres = [(1, 'Анекдот'),
-                       (2, 'Рассказы'),
-                       (3, 'Стишки'),
-                       (4, 'Афоризмы'),
-                       (5, 'Цитаты'),
-                       (6, 'Тосты'),
-                       (8, 'Статусы'),
-                       (11, 'Анекдот (+18)'),
-                       (12, 'Рассказы (+18)'),
-                       (13, 'Стишки (+18)'),
-                       (14, 'Афоризмы (+18)'),
-                       (15, 'Цитаты (+18)'),
-                       (16, 'Тосты (+18)'),
-                       (18, 'Статусы (+18)')]
-
-        self.tag_amount = random.randint(5, 10)
-        self.post_amount = random.randint(1, 12)
+        self.tag_amount = random.randint(5, 7)
+        self.post_amount = random.randint(1, 6)
         self.random_genres = random.sample(self.genres, k=self.tag_amount)
 
-    async def create_random_data(self):
-        user = await TelegramUser.objects.aget(tg_id=self.user_id)
-        for index, name in self.random_genres:
-            tag = await Tag.objects.acreate(name=name, telegram_user=user)
-            post_amount = random.randint(1, 12)
-            for _ in range(post_amount + 1):
-                anecdot = await self._get_random_anecdot(index)
-                if anecdot is not None:
-                    await Post.objects.acreate(text=anecdot, tag=tag)
+    @sync_to_async
+    def create_random_data(self):
+        user = TelegramUser.objects.get(tg_id=self.user_id)
+        tags_already_created = Tag.objects.filter(telegram_user=user).values_list('name', flat=True)
+        genres_to_create = [(index, genre) for index, genre in self.random_genres if genre not in tags_already_created]
+        objects = self._create_objects(genres_to_create, user)
+        tags = [tag for tag, post in objects]
+        posts = [post for tag, post in objects]
+        posts_lat = [post for sublist in posts for post in sublist]
+        Tag.objects.bulk_create(tags)
+        Post.objects.bulk_create(posts_lat)
 
-    async def _get_random_anecdot(self, index):
-        anecdot = requests.get(f'http://rzhunemogu.ru/RandJSON.aspx?CType={index}')
-        try:
-            anecdot = anecdot.json(strict=False)
-            anecdot = anecdot.get('content')
-        except:
-            return
-        return anecdot
+    def _create_objects(self, genres, user):
+        objects = []
+        for index, tag_name in genres:
+            tag_to_create = Tag(name=tag_name, telegram_user=user, is_test=True)
+            posts_to_create = self._create_random_posts(index, self.post_amount, tag_to_create)
+            objects.append((tag_to_create, posts_to_create))
+        return objects
+
+    def _create_random_posts(self, index, amount, tag):
+        posts = []
+        for _ in range(amount+1):
+            anecdot = requests.get(f'http://rzhunemogu.ru/RandJSON.aspx?CType={index}')
+            try:
+                anecdot = anecdot.json(strict=False)
+                anecdot = anecdot.get('content')
+            except:
+                continue
+            posts.append(Post(text=anecdot, tag=tag, is_test=True))
+        return posts
+
+
+@sync_to_async
+def delete_test_data(user_id):
+    Tag.objects.filter(is_test=True, telegram_user__tg_id=user_id).delete()
