@@ -1,9 +1,12 @@
 {% extends 'tag_web/base.html' %}
 
 {% block content %}
+    {% include 'tag_web/create-tag-modal.html' %}
+    {% include 'tag_web/edit-tag-modal.html' %}
     <div class="index">
         <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="themeSwitcher" {% if is_checked %}checked{% endif %}>
+            <input class="form-check-input" type="checkbox" role="switch" id="themeSwitcher"
+                   {% if is_checked %}checked{% endif %}>
             <label class="form-check-label" for="themeSwitcher"><img
                     src="../../static/tag_web/img/dark_mode.png" alt="dark-mode"></label>
         </div>
@@ -14,12 +17,21 @@
         </form>
         <form class="tags px-0 pt-3" id="input-tags">
             {% for tag in tags %}
-                <input type="checkbox" class="btn-check " name="tags" id="{{ tag.name }}" value="{{ tag.name }}" autocomplete="off">
+                <input type="checkbox" class="btn-check " name="tags" id="{{ tag.name }}" value="{{ tag.name }}"
+                       autocomplete="off">
                 <label class="btn btn-light me-1 mb-3 border-1 border-secondary-subtle"
                        for="{{ tag.name }}">{{ tag.name }} <span class="badge text-bg-secondary">{{ tag.count }}</span></label>
             {% endfor %}
+            <button type="button" class="btn btn-light me-1 mb-3 border-1 border-secondary-subtle"
+                    data-bs-toggle="modal" data-bs-target="#create-tag-modal">
+                <img src="../../static/tag_web/img/add_new_tag.png" alt="+"> Новый
+            </button>
+        <button type="button" class="btn btn-light me-1 mb-3 border-1 border-secondary-subtle"
+                    data-bs-toggle="modal" data-bs-target="#edit-tag-modal">
+                 <img src="../../static/tag_web/img/edit_tag.png" alt="edit"> Редактировать
+            </button>
         </form>
-        <div class="posts container px-0" >
+        <div class="posts container px-0">
             <div class="row" id="post-row">
                 {% include 'tag_web/content.html' %}
             </div>

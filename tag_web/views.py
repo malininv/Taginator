@@ -78,6 +78,14 @@ def update_content(request):
     content = render_to_string('tag_web/content.html', context)
     return JsonResponse({'content': content, 'tags': tags}, safe=False)
 
+def create_tag(request):
+    if not request.headers.get('x-requested-with') == 'XMLHttpRequest' or not request.method == 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    data = json.load(request)
+    user_id = request.session['user_id']
+    tag_name = data.get('tag')
+
+    return HttpResponse()
 
 # def logout(request):
 #     del request.session['user_id']

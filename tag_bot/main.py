@@ -19,7 +19,7 @@ bot = Bot(token=TELEGRAM_BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
-MAX_TAG_LENGH = 64
+MAX_TAG_LENGH = 50
 MAIN_KEYBOARD_MSG = 'Отправьте сообщение чтобы сохранить.\n\nДля просмотра существующих сообщение выберите тег.'
 
 

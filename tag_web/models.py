@@ -24,7 +24,7 @@ class Post(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=50, default=DEFAULT_TAG_NAME)
     telegram_user = models.ForeignKey('TelegramUser', blank=True, on_delete=models.CASCADE, related_name='tags')
-    is_test = models.BooleanField(blank=True, null=True)
+    is_test = models.BooleanField(blank=True, null=True, default=False)
 
     class Meta:
         ordering = ['name']

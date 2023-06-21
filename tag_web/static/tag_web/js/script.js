@@ -81,6 +81,24 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+    //Tag Create Modal
+    // const createTagForm = document.querySelector('#create-tag-form')
+
+    // createTagForm.addEventListener('submit', () => {
+    //     const tag =  createTagInput.value
+    //     // fetch('update_session/', {
+    //     //     method: 'POST',
+    //     //     headers: {
+    //     //         'X-CSRFToken': getCookie('csrftoken'),
+    //     //         'x-requested-with': 'XMLHttpRequest',
+    //     //         'Content-Type': 'application/json;charset=utf-8',
+    //     //     },
+    //     //     credentials: 'include',
+    //     //     body: JSON.stringify({tag: htmlThemeElement.dataset.bsTheme})
+    //     // })
+    //
+    // });
+
 
     //From Django Docs for CSRF_Token
     function getCookie(name) {
