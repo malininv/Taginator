@@ -18,7 +18,7 @@ class Post(models.Model):
 
     @property
     def date_pub_formatted(self):
-        return self.date_pub.strftime('%d.%m.%y %H:%M')
+        return self.date_pub.strftime('%d.%m.%y')
 
 
 class Tag(models.Model):

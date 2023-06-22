@@ -20,7 +20,7 @@ storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
 MAX_TAG_LENGH = 50
-MAIN_KEYBOARD_MSG = 'Отправьте сообщение чтобы сохранить.\n\nДля просмотра существующих сообщение выберите тег.'
+MAIN_KEYBOARD_MSG = 'Отправьте сообщение чтобы сохранить.\n\nДля просмотра существующих сообщений выберите тег.'
 
 
 class CreateTagState(StatesGroup):

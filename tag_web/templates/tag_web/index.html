@@ -1,8 +1,13 @@
 {% extends 'tag_web/base.html' %}
+{% block modal %}
+    {% include 'tag_web/create-modal.html' %}
+    {% include 'tag_web/create-tag-modal.html' %}
+    {% include 'tag_web/create-post-modal.html' %}
+    {% include 'tag_web/edit-tag-modal.html' %}
+{% endblock %}
 
 {% block content %}
-    {% include 'tag_web/create-tag-modal.html' %}
-    {% include 'tag_web/edit-tag-modal.html' %}
+
     <div class="index">
         <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" role="switch" id="themeSwitcher"
@@ -23,12 +28,12 @@
                        for="{{ tag.name }}">{{ tag.name }} <span class="badge text-bg-secondary">{{ tag.count }}</span></label>
             {% endfor %}
             <button type="button" class="btn btn-light me-1 mb-3 border-1 border-secondary-subtle"
-                    data-bs-toggle="modal" data-bs-target="#create-tag-modal">
+                    data-bs-toggle="modal" data-bs-target="#create-modal">
                 <img src="../../static/tag_web/img/add_new_tag.png" alt="+"> Новый
             </button>
         <button type="button" class="btn btn-light me-1 mb-3 border-1 border-secondary-subtle"
                     data-bs-toggle="modal" data-bs-target="#edit-tag-modal">
-                 <img src="../../static/tag_web/img/edit_tag.png" alt="edit"> Редактировать
+                 <img src="../../static/tag_web/img/edit_tag.png" alt="edit"> Изменить
             </button>
         </form>
         <div class="posts container px-0">

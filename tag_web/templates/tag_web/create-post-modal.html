@@ -1,22 +1,22 @@
-<div class="modal fade" id="create-tag-modal" tabindex="-1">
+<div class="modal fade" id="create-post-modal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Новый тег</h5>
+                <h5 class="modal-title">Новый пост</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="create-tag-form">
+                <form id="create-post-form">
                         <div class="d-flex pb-3">
                             <label for="create-tag-input" class="form-label"></label>
-                            <input id="create-tag-input" class="form-control" type="text"
-                                   placeholder="Введите название тега"
-                                   name="search">
+                            <textarea id="create-tag-input" class="form-control" type="text"
+                                   placeholder="Текст поста"
+                                   name="search"></textarea>
                         </div>
                         <div class="buttons d-flex align-items-center justify-content-end">
                                 <button type="button" class="btn d-inline-block btn-secondary ms-3" data-bs-dismiss="modal">Закрыть</button>
                                 <button type="button" class="btn d-inline-block btn-secondary ms-3" data-bs-toggle="modal" data-bs-target="#create-modal">Назад</button>
-                                <button type="submit" id="create-tag-button" class="btn d-inline-block btn-primary ms-3">Сохранить</button>
+                                <button type="submit" id="create-post-button" class="btn d-inline-block btn-primary ms-3">Сохранить</button>
                         </div>
                 </form>
             </div>

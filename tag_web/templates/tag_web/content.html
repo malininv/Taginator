@@ -1,22 +1,25 @@
 {% for post in posts %}
-    <div class="card-wrapper d-flex align-items-stretch pb-3 col-xl-3 col-lg-4 col-sm-6">
+    <div class="card-wrapper d-flex align-items-stretch pb-4 col-xl-3 col-lg-4 col-sm-6">
         <div class="card w-100">
             <div class="card-header container">
                 <div class="header-row row">
                     <div class="tag col text-start">
                         <strong>#{{ post.tag.name }} </strong>
                     </div>
-                    <div class="date-pub col text-end ">
-                        <strong>{{ post.date_pub_formatted }}</strong>
-                    </div>
+                    {#                    <div class="date-pub col text-end ">#}
+                    {##}
+                    {#                    </div>#}
                 </div>
             </div>
             <div class="card-body">
                 <p class="card-text">{{ post.text }}</p>
             </div>
-            {#                    <div class="card-footer">#}
-            {##}
-            {#                    </div>#}
+            <div class="card-footer container">
+                <div class="date-pub col text-start ">
+                    <small>{{ post.date_pub_formatted }}</small>
+                </div>
+
+            </div>
 
         </div>
     </div>
