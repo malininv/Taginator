@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 DEFAULT_TAG_NAME = 'Без тега'
-
+MAX_TAG_LENGTH = 50
 
 class Post(models.Model):
     text = models.TextField(db_index=True)
@@ -22,7 +22,7 @@ class Post(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=50, default=DEFAULT_TAG_NAME)
+    name = models.CharField(max_length=MAX_TAG_LENGTH, default=DEFAULT_TAG_NAME)
     telegram_user = models.ForeignKey('TelegramUser', blank=True, on_delete=models.CASCADE, related_name='tags')
     is_test = models.BooleanField(blank=True, null=True, default=False)
 

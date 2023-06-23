@@ -19,6 +19,6 @@ from django.urls import path, include
 from tag_web import views
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('', include('tag_web.urls')),
-    path('admin/', admin.site.urls)
 ]

@@ -11,7 +11,7 @@ from tag_bot.keyboards import main_keyboard, create_choose_tag_keyboard, post_ke
 from django.db.models import Count
 
 django.setup()
-from tag_web.models import Tag, TelegramUser, Post, DEFAULT_TAG_NAME
+from tag_web.models import Tag, TelegramUser, Post, DEFAULT_TAG_NAME, MAX_TAG_LENGTH
 from tag_web.utils import TestData, delete_test_data
 from Taginator.local_settings import TELEGRAM_BOT_TOKEN
 
@@ -19,7 +19,6 @@ bot = Bot(token=TELEGRAM_BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
-MAX_TAG_LENGH = 50
 MAIN_KEYBOARD_MSG = 'Отправьте сообщение чтобы сохранить.\n\nДля просмотра существующих сообщений выберите тег.'
 
 
@@ -109,8 +108,8 @@ def get_or_create_tag(name, user_id):
 
 @dp.message_handler(state=CreateTagState.waiting_for_tag_name)
 async def create_tag(message: types.Message, state: FSMContext):
-    if len(message.text) > MAX_TAG_LENGH:
-        await message.answer(f"Тег слишком длинный. Максимальная длинна {MAX_TAG_LENGH} символа.",
+    if len(message.text) > MAX_TAG_LENGTH:
+        await message.answer(f"Тег слишком длинный. Максимальная длинна {MAX_TAG_LENGTH} символа.",
                              reply_markup=main_keyboard)
         await state.finish()
         return

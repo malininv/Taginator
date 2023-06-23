@@ -1,4 +1,5 @@
 {% extends 'tag_web/base.html' %}
+{% load static %}
 {% block modal %}
     {% include 'tag_web/create-modal.html' %}
     {% include 'tag_web/create-tag-modal.html' %}
@@ -13,7 +14,7 @@
             <input class="form-check-input" type="checkbox" role="switch" id="themeSwitcher"
                    {% if is_checked %}checked{% endif %}>
             <label class="form-check-label" for="themeSwitcher"><img
-                    src="../../static/tag_web/img/dark_mode.png" alt="dark-mode"></label>
+                    src="{% static 'tag_web/img/dark_mode.png'%}" alt="dark-mode" ></label>
         </div>
         <form id="input-main">
             <label for="search-main" class="form-label"></label>
@@ -29,11 +30,11 @@
             {% endfor %}
             <button type="button" class="btn btn-light me-1 mb-3 border-1 border-secondary-subtle"
                     data-bs-toggle="modal" data-bs-target="#create-modal">
-                <img src="../../static/tag_web/img/add_new_tag.png" alt="+"> Новый
+                <img src="{% static 'tag_web/img/add_new_tag.png'%}" alt="+"> Новый
             </button>
         <button type="button" class="btn btn-light me-1 mb-3 border-1 border-secondary-subtle"
                     data-bs-toggle="modal" data-bs-target="#edit-tag-modal">
-                 <img src="../../static/tag_web/img/edit_tag.png" alt="edit"> Изменить
+                 <img src="{% static 'tag_web/img/edit_tag.png' %}" alt="edit"> Изменить
             </button>
         </form>
         <div class="posts container px-0">
