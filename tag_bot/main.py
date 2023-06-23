@@ -29,8 +29,8 @@ class CreateTagState(StatesGroup):
 @dp.message_handler(commands=['start'])
 async def send_main_keyboard(message: types.Message):
     await message.answer(MAIN_KEYBOARD_MSG, reply_markup=main_keyboard)
-    telegram_user, created = await TelegramUser.objects.aget_or_create(tg_id=message.from_user.id)
-    default_tag, created = await Tag.objects.aget_or_create(name=DEFAULT_TAG_NAME, telegram_user=telegram_user)
+    telegram_user = await TelegramUser.make_from_dict(message.from_user.values)
+    await Tag.objects.aget_or_create(name=DEFAULT_TAG_NAME, telegram_user=telegram_user)
 
 
 @dp.callback_query_handler(main_callback.filter(type="create", context=context.main))

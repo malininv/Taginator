@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import pprint
 from pathlib import Path
 
-
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -120,20 +120,21 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'staticfiles/'
+STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STATICFILES_DIRS = [
-    BASE_DIR / "staticfiles",
-]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 TELEGRAM_BOT_NAME = 'taginator_help_bot'
 CSRF_TRUSTED_ORIGINS = ['https://8267-46-175-33-19.ngrok-free.app', 'http://localhost:80']
+
+LOGIN_URL = reverse_lazy('tag_web:login')
+
+AUTH_USER_MODEL = 'tag_web.TelegramUser'
 
 from .local_settings import *

@@ -1,8 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from asgiref.sync import sync_to_async
 
 DEFAULT_TAG_NAME = 'Без тега'
+DEFAULT_PASSWORD = 'Taginator_help_bot'
 MAX_TAG_LENGTH = 50
+
 
 class Post(models.Model):
     text = models.TextField(db_index=True)
@@ -23,7 +26,8 @@ class Post(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=MAX_TAG_LENGTH, default=DEFAULT_TAG_NAME)
-    telegram_user = models.ForeignKey('TelegramUser', blank=True, on_delete=models.CASCADE, related_name='tags')
+    telegram_user = models.ForeignKey('TelegramUser', blank=True, null=True,
+                                      on_delete=models.CASCADE, related_name='tags')
     is_test = models.BooleanField(blank=True, null=True, default=False)
 
     class Meta:
@@ -33,25 +37,22 @@ class Tag(models.Model):
         return str(self.name) + f' ({self.telegram_user})'
 
 
-class TelegramUser(models.Model):
+class TelegramUser(AbstractUser):
     tg_id = models.IntegerField(unique=True, blank=True, null=True)
-    tg_first_name = models.CharField(max_length=200, blank=True, null=True)
-    tg_last_name = models.CharField(max_length=200, blank=True, null=True)
     tg_username = models.CharField(max_length=200, blank=True, null=True)
-    tg_photo_url = models.CharField(max_length=200, blank=True, null=True)
     tg_auth_date = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.tg_id} {self.tg_first_name} {self.tg_last_name}"
+        return f"{self.tg_id} {self.tg_username}"
 
     @staticmethod
+    @sync_to_async
     def make_from_dict(data):
-        user, created = TelegramUser.objects.get_or_create(tg_id=data.get('id', ''))
-        user.tg_first_name = data.get('first_name', '')
-        user.tg_last_name = data.get('last_name', '')
+        username = str(data['id'])
+        password = DEFAULT_PASSWORD
+        user, created = TelegramUser.objects.get_or_create(tg_id=data.get('id', ''),
+                                                           username=username, password=password)
         user.tg_username = data.get('username', '')
-        user.tg_photo_url = data.get('photo_url', '')
         user.tg_auth_date = data.get('auth_date', '')
         user.save()
         return user
-
