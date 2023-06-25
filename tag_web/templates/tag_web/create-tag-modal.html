@@ -6,18 +6,20 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="create-tag-form" action="/create_tag/">
-                        <div class="d-flex pb-3">
-                            <label for="create-tag-input" class="form-label"></label>
-                            <input id="create-tag-input" class="form-control" type="text"
-                                   placeholder="Введите название тега"
-                                   name="search">
-                        </div>
-                        <div class="buttons d-flex align-items-center justify-content-end">
-                                <button type="button" class="btn d-inline-block btn-secondary ms-3" data-bs-dismiss="modal">Закрыть</button>
-                                <button type="button" class="btn d-inline-block btn-secondary ms-3" data-bs-toggle="modal" data-bs-target="#create-modal">Назад</button>
-                                <button type="submit" id="create-tag-button" class="btn d-inline-block btn-primary ms-3">Сохранить</button>
-                        </div>
+                <form id="create-tag-form" method="POST" action="{% url 'tag_web:create_tag' %}">
+                    {% csrf_token %}
+                    {{ form_create_tag }}
+                    <div class="buttons d-flex align-items-center justify-content-end">
+                        <button type="button" class="btn d-inline-block btn-secondary ms-3" data-bs-dismiss="modal">
+                            Закрыть
+                        </button>
+                        <button type="button" class="btn d-inline-block btn-secondary ms-3" data-bs-toggle="modal"
+                                data-bs-target="#create-modal">Назад
+                        </button>
+                        <button type="submit" id="create-tag-button" class="btn d-inline-block btn-primary ms-3">
+                            Сохранить
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

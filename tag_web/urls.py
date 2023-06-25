@@ -9,4 +9,6 @@ urlpatterns = [
     path('login/', views.login_telegram, name='login'),
     path('update_content/', views.update_content, name='update_content'),
     path('update_session/', views.update_session, name='update_session'),
+    path('create_tag/', views.create_tag, name="create_tag"),
+    path('create_post/', views.create_post, name="create_post")
 ]

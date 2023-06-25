@@ -27,7 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['8267-46-175-33-19.ngrok-free.app']
+CURRENT_HOST = '416b-46-175-33-19.ngrok-free.app'
+
+ALLOWED_HOSTS = [CURRENT_HOST]
 
 
 # Application definition
@@ -131,7 +133,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 TELEGRAM_BOT_NAME = 'taginator_help_bot'
-CSRF_TRUSTED_ORIGINS = ['https://8267-46-175-33-19.ngrok-free.app', 'http://localhost:80']
+
+CURRENT_HOST_WITH_PREFIX = 'https://' + CURRENT_HOST
+CSRF_TRUSTED_ORIGINS = [CURRENT_HOST_WITH_PREFIX, 'http://localhost:80']
 
 LOGIN_URL = reverse_lazy('tag_web:login')
 

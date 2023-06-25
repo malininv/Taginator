@@ -3,8 +3,8 @@ import hmac
 import random
 import django
 import requests
-
 from asgiref.sync import sync_to_async
+from django.http import HttpResponseNotAllowed
 django.setup()
 from tag_web.models import Tag, Post, TelegramUser
 
@@ -58,7 +58,7 @@ class TestData:
             for _ in range(self.post_amount + 1):
                 anecdot = self._get_random_anecdot(index)
                 if anecdot is not None:
-                    posts.append(Post(text=anecdot, tag=tag, is_test=True))
+                    posts.append(Post(text=anecdot, tag=tag, is_test=True).clean_fields())
             Post.objects.bulk_create(posts)
 
     def _get_random_anecdot(self, index):
@@ -75,3 +75,14 @@ class TestData:
 @sync_to_async
 def delete_test_data(user_id):
     Tag.objects.filter(is_test=True, telegram_user__tg_id=user_id).delete()
+
+
+def is_ajax(request, method: str):
+    if method == 'GET':
+        if not request.headers.get('x-requested-with') == 'XMLHttpRequest' or not request.method == 'GET':
+            return HttpResponseNotAllowed(['GET'])
+    if method == 'POST':
+        if not request.headers.get('x-requested-with') == 'XMLHttpRequest' or not request.method == 'POST':
+            return HttpResponseNotAllowed(['POST'])
+
+

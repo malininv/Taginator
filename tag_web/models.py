@@ -4,12 +4,12 @@ from asgiref.sync import sync_to_async
 
 DEFAULT_TAG_NAME = 'Без тега'
 DEFAULT_PASSWORD = 'Taginator_help_bot'
-MAX_TAG_LENGTH = 50
+MAX_TAG_LENGTH = 48
 
 
 class Post(models.Model):
     text = models.TextField(db_index=True)
-    tag = models.ForeignKey('Tag', on_delete=models.CASCADE, blank=True, related_name='posts')
+    tag = models.ForeignKey('Tag', on_delete=models.CASCADE, related_name='posts')
     date_pub = models.DateTimeField(auto_now_add=True)
     is_test = models.BooleanField(blank=True, null=True, default=False)
 
@@ -34,7 +34,7 @@ class Tag(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return str(self.name) + f' ({self.telegram_user})'
+        return str(self.name)
 
 
 class TelegramUser(AbstractUser):

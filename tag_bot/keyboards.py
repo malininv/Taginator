@@ -3,12 +3,12 @@ from asgiref.sync import sync_to_async
 from collections import namedtuple
 from tag_bot.callback_datas import main_callback, tag_callback
 import django
-
+from django.urls import reverse
 django.setup()
 from tag_web.models import DEFAULT_TAG_NAME
+from Taginator.settings import CURRENT_HOST
 
-SITE_URL = 'http://127.0.0.1:8000/admin/'
-
+AUTH_URL = 'https://' + CURRENT_HOST + reverse('tag_web:auth')
 Context = namedtuple('Context', ['main', 'post'])
 context = Context('main', 'post')
 
@@ -34,7 +34,7 @@ def create_choose_tag_keyboard(tags, context, action):
     return keyboard
 
 
-login_url = LoginUrl(url='https://8267-46-175-33-19.ngrok-free.app/auth', request_write_access=True,
+login_url = LoginUrl(url=AUTH_URL, request_write_access=True,
                      bot_username='taginator_help_bot')
 main_keyboard_buttons = [
     [InlineKeyboardButton(text="📚 Выбрать", callback_data=main_callback.new(type="choose", context=context.main)),
